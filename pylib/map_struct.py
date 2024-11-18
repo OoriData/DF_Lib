@@ -10,9 +10,7 @@ from io import BytesIO
 from df_lib.datastruct import (TERRAIN_FORMAT, CARGO_HEADER_FORMAT, VEHICLE_HEADER_FORMAT, VENDOR_HEADER_FORMAT,
                               SETTLEMENT_HEADER_FORMAT)
 
-#
-# client-side serialization
-#
+# ------ client-side serialization -------------------------------------------------------------------------------------
 
 ZERO_UUID = '00000000-0000-0000-0000-000000000000'
 
@@ -191,9 +189,7 @@ def serialize_map(data: dict[str, Any]) -> bytes:
     return buffer.getvalue()
 
 
-#
-# Server-side deserialization
-#
+# ------ Server-side deserialization -----------------------------------------------------------------------------------
 
 
 def unpack_string(data: bytes) -> str:
