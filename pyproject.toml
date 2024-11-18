@@ -7,7 +7,7 @@ name = "df_lib"
 dynamic = ["version"]
 description = "Desolate Frontiers open library"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.12"
 # FIXME: Should switch to Apache license, right?
 # Sigh had to spelunk in the code to find this. So what of the SPD license = "UNLICENSED"?
 license = "LicenseRef-Proprietary"
