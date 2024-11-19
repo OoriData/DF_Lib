@@ -15,6 +15,16 @@ import pytest
 
 @pytest.fixture
 def test_map_json_1():
+    '''
+3x3 map sample with:
+- Valid x,y coordinate sequences
+- One settlement (Seattle) with two vendors
+- One vendor with cargo inventory (water drums)
+- One vendor with vehicle inventory (Ram 1500)
+- One highlighted tile at Seattle's location
+- Representative values for all required fields
+- Proper nesting of all data structures
+    '''
     return TEST_MAP_JSON_1
 
 
