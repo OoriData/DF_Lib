@@ -6,6 +6,7 @@ import struct
 import warnings
 from typing import Any
 from io import BytesIO
+from uuid import UUID
 
 from df_lib.datastruct import (TERRAIN_FORMAT, CARGO_HEADER_FORMAT, VEHICLE_HEADER_FORMAT, VENDOR_HEADER_FORMAT,
                               SETTLEMENT_HEADER_FORMAT)
@@ -15,11 +16,13 @@ from df_lib.datastruct import (TERRAIN_FORMAT, CARGO_HEADER_FORMAT, VEHICLE_HEAD
 ZERO_UUID = '00000000-0000-0000-0000-000000000000'
 
 
-def process_uuid(uuid_val: str | None) -> str:
+def process_uuid(uuid_val: str | UUID | None) -> str:
     '''Helper function to handle UUID fields'''
     if uuid_val is None or uuid_val == '':
         return ZERO_UUID
-    assert len(uuid_val) == 36, f"Invalid UUID length: {uuid_val}"
+    if isinstance(uuid_val, UUID):
+        uuid_val = str(uuid_val)
+    assert len(uuid_val) == 36, f'Invalid UUID length: {uuid_val}'
     return uuid_val
 
 
@@ -30,6 +33,8 @@ def pack_string(s: str, length: int) -> bytes:
 
     # XXX: A bit flaky to use the length as the UUID check. Ponder this
     # Special handling for UUIDs to ensure they're properly formatted
+    if isinstance(s, UUID): # Convert incoming UUIDs to strings for transport
+        s = str(s)
     if length == 36:  # UUID length
         if s == ZERO_UUID or not s:
             return ZERO_UUID.encode('utf-8')
@@ -50,7 +55,7 @@ def serialize_cargo(cargo: dict[str, Any]) -> bytes:
     # Validate UUIDs
     for uuid_field in ['cargo_id', 'distributor', 'vehicle_id', 'warehouse_id', 'vendor_id']:
         if cargo.get(uuid_field) and cargo[uuid_field] != ZERO_UUID:
-            assert len(cargo[uuid_field]) == 36, f"Invalid UUID length for {uuid_field}: {cargo[uuid_field]}"
+            assert len(cargo[uuid_field]) == 36, f'Invalid UUID length for {uuid_field}: {cargo[uuid_field]}'
     assert len(cargo.get('name', '')) <= 64
     assert len(cargo.get('base_desc', '') or '') <= 512
     return struct.pack(
@@ -123,12 +128,12 @@ def serialize_vendor(vendor: dict[str, Any]) -> bytes:
         int(vendor.get('food') or 0),
         int(vendor.get('food_price', -1) or 0),
         int(vendor.get('repair_price', -1) or 0),
-        len(vendor['_cargo_inventory']),
-        len(vendor['_vehicle_inventory'])
+        len(vendor['cargo_inventory']),
+        len(vendor['vehicle_inventory'])
     )
 
-    cargo_data = b''.join(serialize_cargo(c) for c in vendor['_cargo_inventory'])
-    vehicle_data = b''.join(serialize_vehicle(v) for v in vendor['_vehicle_inventory'])
+    cargo_data = b''.join(serialize_cargo(c) for c in vendor['cargo_inventory'])
+    vehicle_data = b''.join(serialize_vehicle(v) for v in vendor['vehicle_inventory'])
 
     return header + cargo_data + vehicle_data
 
@@ -173,7 +178,7 @@ def serialize_map(data: dict[str, Any]) -> bytes:
 
     # Write map dimensions
     tiles = data['tiles']
-    buffer.write(struct.pack("!HH", len(tiles), len(tiles[0])))
+    buffer.write(struct.pack('!HH', len(tiles), len(tiles[0])))
 
     # Write tiles. Note that tiles have x, y coordinates; redundant because they come in order
     for y, row in enumerate(tiles):
@@ -182,9 +187,9 @@ def serialize_map(data: dict[str, Any]) -> bytes:
 
     # Write highlights/lowlights
     for location_list in [(data.get('highlights', []) or []), (data.get('lowlights', []) or [])]:
-        buffer.write(struct.pack("!H", len(location_list)))
+        buffer.write(struct.pack('!H', len(location_list)))
         for x, y in location_list:
-            buffer.write(struct.pack("!HH", x, y))
+            buffer.write(struct.pack('!HH', x, y))
 
     return buffer.getvalue()
 
@@ -298,8 +303,8 @@ def deserialize_vendor(buffer: BytesIO) -> dict[str, Any]:
         'food': header[8],
         'food_price': header[9],
         'repair_price': header[10],
-        '_cargo_inventory': cargo_inventory,
-        '_vehicle_inventory': vehicle_inventory
+        'cargo_inventory': cargo_inventory,
+        'vehicle_inventory': vehicle_inventory
     }
 
 
@@ -326,7 +331,7 @@ def deserialize_map(binary_data: bytes) -> dict[str, Any]:
     buffer = BytesIO(binary_data)
 
     # Read map dimensions
-    height, width = struct.unpack("!HH", buffer.read(4))
+    height, width = struct.unpack('!HH', buffer.read(4))
 
     # Read tiles
     tiles = []
@@ -355,9 +360,9 @@ def deserialize_map(binary_data: bytes) -> dict[str, Any]:
     lowlights = []
 
     for location_list in (highlights, lowlights):
-        count = struct.unpack("!H", buffer.read(2))[0]
+        count = struct.unpack('!H', buffer.read(2))[0]
         for _ in range(count):
-            x, y = struct.unpack("!HH", buffer.read(4))
+            x, y = struct.unpack('!HH', buffer.read(4))
             location_list.append([x, y])
 
     return {
