@@ -31,7 +31,8 @@ classifiers = [
 # https://hatch.pypa.io/latest/config/dependency/
 # Moved to reqs.txt, since we're Containerizing
 dependencies = [
-  "google-re2"
+  # "google-re2",
+  "pytest"
 ]
 
 [project.urls]
