@@ -2,4 +2,4 @@
 # SPDX-License-Identifier: UNLICENSED
 # df_lib.__about__
 'df_lib.__about__'
-__version__ = '0.1.0'
+__version__ = '0.2.0'
