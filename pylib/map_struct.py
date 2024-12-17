@@ -147,7 +147,7 @@ def serialize_settlement(settlement: dict[str, Any]) -> bytes:
         pack_string(settlement['sett_id'], 36),  # 0-filled UUID is a valid case (happened to be Chicago)
         pack_string(settlement['name'], 64),
         pack_string(settlement.get('base_desc') or '', 1024),
-        {'dome': 1, 'city': 2, 'town': 3, 'city-state': 4, 'military_base': 5}.get(settlement['sett_type'], 0),
+        {'tutorial': 1, 'dome': 2, 'city': 3, 'town': 4, 'city-state': 5, 'military_base': 6}.get(settlement['sett_type'], 0),
         len(settlement.get('imports', []) or []),
         len(settlement.get('exports', []) or []),
         len(settlement['vendors'])
@@ -312,7 +312,7 @@ def deserialize_settlement(buffer: BytesIO) -> dict[str, Any]:
     '''Deserialize a single settlement'''
     header = struct.unpack(SETTLEMENT_HEADER_FORMAT, buffer.read(struct.calcsize(SETTLEMENT_HEADER_FORMAT)))
     sett_id = unpack_string(header[0])
-    sett_types = {1: 'dome', 2: 'city', 3: 'town', 4: 'city-state', 5: 'military_base'}
+    sett_types = {1: 'tutorial', 2: 'dome', 3: 'city', 4: 'town', 5: 'city-state', 6: 'military_base'}
     vendor_count = header[6]
 
     vendors = [deserialize_vendor(buffer) for _ in range(vendor_count)]
