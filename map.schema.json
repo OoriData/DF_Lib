@@ -28,7 +28,7 @@
                                     "name": { "type": "string", "maxLength": 64 },
                                     "sett_type": { 
                                         "type": "string",
-                                        "enum": ["dome", "city", "town", "city-state", "military_base"]
+                                        "enum": ["dome", "city", "town", "city-state", "military_base", "village"]
                                     },
                                     "vendors": {
                                         "type": "array",
