@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "df_lib"
 dynamic = ["version"]
-description = "Desolate Frontiers open library"
+description = "Desolate Frontiers helper library"
 readme = "README.md"
 requires-python = ">=3.12"
 # FIXME: Should switch to Apache license, right?

@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2023-present Oori Data <info@oori.dev>
 # SPDX-License-Identifier: UNLICENSED
 # df_lib.datastruct
-'''
+"""
 Common data structure definitions, e.g. for packed data transport
 
 Format codes used:
@@ -16,7 +16,7 @@ f - float
 Notes:
 * creation_date is omitted throughout, as not meaningful in map rendering
 
-'''
+"""
 # All start with id(UUID), name(64s), base_desc(512s)
 TERRAIN_FORMAT = "!BBBBH"
 SETTLEMENT_HEADER_FORMAT = "!36s64s1024sBBBB"  # uuid(36), name(100), type(1), imports(1), exports(1), vendor_count(1)

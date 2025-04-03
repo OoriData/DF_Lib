@@ -1,4 +1,4 @@
-'''
+"""
 This test:
 
 1. Loads the sample JSON data
@@ -17,7 +17,7 @@ The test ensures that the serialization format preserves all the important data 
 - Special map markers (highlights/lowlights)
 
 The deep comparison helps catch any data loss or corruption that might occur during serialization.
-'''
+"""
 # import pytest
 import json
 import os

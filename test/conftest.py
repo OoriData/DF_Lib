@@ -1,13 +1,13 @@
 # SPDX-FileCopyrightText: 2023-present Oori Data <info@oori.dev>
 # SPDX-License-Identifier: Apache-2.0
 # test/conftest.py
-'''
+"""
 Fixtures/setup/teardown for DF_Lib tests
 
 General note: After setup as described in the README.md for this directory, run the tests with:
 
 pytest test
-'''
+"""
 
 import pytest
 # import pytest_asyncio
@@ -15,16 +15,16 @@ import pytest
 
 @pytest.fixture
 def test_map_json_1():
-    '''
-3x3 map sample with:
-- Valid x,y coordinate sequences
-- One settlement (Seattle) with two vendors
-- One vendor with cargo inventory (water drums)
-- One vendor with vehicle inventory (Ram 1500)
-- One highlighted tile at Seattle's location
-- Representative values for all required fields
-- Proper nesting of all data structures
-    '''
+    """
+    3x3 map sample with:
+    - Valid x,y coordinate sequences
+    - One settlement (Seattle) with two vendors
+    - One vendor with cargo inventory (water drums)
+    - One vendor with vehicle inventory (Ram 1500)
+    - One highlighted tile at Seattle's location
+    - Representative values for all required fields
+    - Proper nesting of all data structures
+    """
     return TEST_MAP_JSON_1
 
 

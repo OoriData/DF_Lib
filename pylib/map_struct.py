@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2023-present Oori Data <info@oori.dev>
 # SPDX-License-Identifier: UNLICENSED
 # df_lib.map_struct
-'df_lib.map_struct'
+""" df_lib.map_struct """
 import struct
 import warnings
 from typing import Any
@@ -11,13 +11,13 @@ from uuid import UUID
 from df_lib.datastruct import (TERRAIN_FORMAT, CARGO_HEADER_FORMAT, VEHICLE_HEADER_FORMAT, VENDOR_HEADER_FORMAT,
                               SETTLEMENT_HEADER_FORMAT)
 
-# ------ client-side serialization -------------------------------------------------------------------------------------
+# ━━━━━━ client-side serialization ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 ZERO_UUID = '00000000-0000-0000-0000-000000000000'
 
 
 def process_uuid(uuid_val: str | UUID | None) -> str:
-    '''Helper function to handle UUID fields'''
+    """ Helper function to handle UUID fields """
     if uuid_val is None or uuid_val == '':
         return ZERO_UUID
     if isinstance(uuid_val, UUID):
@@ -27,7 +27,7 @@ def process_uuid(uuid_val: str | UUID | None) -> str:
 
 
 def pack_string(s: str, length: int) -> bytes:
-    '''Pack a string into fixed-length bytes with UTF-8 encoding'''
+    """ Pack a string into fixed-length bytes with UTF-8 encoding """
     if not s:
         return b'\0' * length
 
@@ -51,7 +51,7 @@ def pack_string(s: str, length: int) -> bytes:
 
 
 def serialize_cargo(cargo: dict[str, Any]) -> bytes:
-    '''Serialize a single cargo item'''
+    """ Serialize a single cargo item """
     # Validate UUIDs
     for uuid_field in ['cargo_id', 'distributor', 'vehicle_id', 'warehouse_id', 'vendor_id']:
         if cargo.get(uuid_field) and cargo[uuid_field] != ZERO_UUID:
@@ -81,7 +81,7 @@ def serialize_cargo(cargo: dict[str, Any]) -> bytes:
 
 
 def serialize_vehicle(vehicle: dict[str, Any]) -> bytes:
-    '''Serialize a single vehicle'''
+    """ Serialize a single vehicle """
     assert len(vehicle.get('name', '')) <= 64
     assert len(vehicle.get('base_desc', '')) <= 512
     assert vehicle.get('convoy_id') is None
@@ -108,7 +108,7 @@ def serialize_vehicle(vehicle: dict[str, Any]) -> bytes:
 
 
 def serialize_vendor(vendor: dict[str, Any]) -> bytes:
-    '''Serialize a single vendor'''
+    """ Serialize a single vendor """
     # TODO: Vendor to handle supply_request
     # Axiom: Cargo item should have exactly one UUID of vehicle_id, warehouse_id, vendor_id; others are explicitly null
     # assert len(sum(vendor['vehicle_id']))
@@ -139,7 +139,7 @@ def serialize_vendor(vendor: dict[str, Any]) -> bytes:
 
 
 def serialize_settlement(settlement: dict[str, Any]) -> bytes:
-    '''Serialize a single settlement'''
+    """ Serialize a single settlement """
     assert len(settlement.get('name', '')) <= 64
     assert len(settlement.get('base_desc', '') or '') <= 1024, settlement.get('base_desc')
     header = struct.pack(
@@ -158,7 +158,7 @@ def serialize_settlement(settlement: dict[str, Any]) -> bytes:
 
 
 def serialize_tile(tile: dict[str, Any], x, y) -> bytes:
-    '''Serialize a single tile'''
+    """ Serialize a single tile """
     header = struct.pack(
         TERRAIN_FORMAT,
         tile['terrain_difficulty'],
@@ -173,7 +173,7 @@ def serialize_tile(tile: dict[str, Any], x, y) -> bytes:
 
 
 def serialize_map(data: dict[str, Any]) -> bytes:
-    '''Serialize the entire map structure'''
+    """ Serialize the entire map structure """
     buffer = BytesIO()
 
     # Write map dimensions
@@ -194,11 +194,11 @@ def serialize_map(data: dict[str, Any]) -> bytes:
     return buffer.getvalue()
 
 
-# ------ Server-side deserialization -----------------------------------------------------------------------------------
+# ━━━━━━ Server-side deserialization ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 
 def unpack_string(data: bytes) -> str:
-    '''Unpack a null-terminated string from bytes'''
+    """ Unpack a null-terminated string from bytes """
     # First handle empty or None cases
     if not data:
         return ''
@@ -224,7 +224,7 @@ def unpack_string(data: bytes) -> str:
 
 
 def deserialize_cargo(buffer: BytesIO) -> dict[str, Any]:
-    '''Deserialize a single cargo item'''
+    """ Deserialize a single cargo item """
     data = struct.unpack(CARGO_HEADER_FORMAT, buffer.read(struct.calcsize(CARGO_HEADER_FORMAT)))
 
     cargo = {
@@ -259,7 +259,7 @@ def deserialize_cargo(buffer: BytesIO) -> dict[str, Any]:
 
 
 def deserialize_vehicle(buffer: BytesIO) -> dict[str, Any]:
-    '''Deserialize a single vehicle'''
+    """ Deserialize a single vehicle """
     data = struct.unpack(VEHICLE_HEADER_FORMAT, buffer.read(struct.calcsize(VEHICLE_HEADER_FORMAT)))
 
     return {
@@ -282,7 +282,7 @@ def deserialize_vehicle(buffer: BytesIO) -> dict[str, Any]:
 
 
 def deserialize_vendor(buffer: BytesIO) -> dict[str, Any]:
-    '''Deserialize a single vendor'''
+    """ Deserialize a single vendor """
     header = struct.unpack(VENDOR_HEADER_FORMAT, buffer.read(struct.calcsize(VENDOR_HEADER_FORMAT)))
 
     cargo_count = header[11]
@@ -309,7 +309,7 @@ def deserialize_vendor(buffer: BytesIO) -> dict[str, Any]:
 
 
 def deserialize_settlement(buffer: BytesIO) -> dict[str, Any]:
-    '''Deserialize a single settlement'''
+    """ Deserialize a single settlement """
     header = struct.unpack(SETTLEMENT_HEADER_FORMAT, buffer.read(struct.calcsize(SETTLEMENT_HEADER_FORMAT)))
     sett_id = unpack_string(header[0])
     sett_types = {1: 'tutorial', 2: 'dome', 3: 'city', 4: 'town', 5: 'city-state', 6: 'military_base', 7 : 'village'}
@@ -327,7 +327,7 @@ def deserialize_settlement(buffer: BytesIO) -> dict[str, Any]:
 
 
 def deserialize_map(binary_data: bytes) -> dict[str, Any]:
-    '''Deserialize the entire map structure'''
+    """ Deserialize the entire map structure """
     buffer = BytesIO(binary_data)
 
     # Read map dimensions
