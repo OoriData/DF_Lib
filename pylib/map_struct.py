@@ -340,7 +340,7 @@ def deserialize_map(binary_data: bytes) -> dict[str, Any]:
         for x, _ in enumerate(range(width)):
             header = struct.unpack(TERRAIN_FORMAT, buffer.read(struct.calcsize(TERRAIN_FORMAT)))
             settlement_count = header[4]
-            
+
             settlements = [deserialize_settlement(buffer) for _ in range(settlement_count)]
             [ s.update({'x': x, 'y': y}) for s in settlements ]
 
