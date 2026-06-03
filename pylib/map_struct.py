@@ -53,7 +53,7 @@ def pack_string(s: str, length: int) -> bytes:
 def serialize_cargo(cargo: dict[str, Any]) -> bytes:
     """ Serialize a single cargo item """
     # Validate UUIDs
-    for uuid_field in ['cargo_id', 'distributor', 'vehicle_id', 'warehouse_id', 'vendor_id']:
+    for uuid_field in ['cargo_id', 'distributor', 'vehicle_id', 'warehouse_id', 'vendor_id', 'recipient']:
         if cargo.get(uuid_field) and cargo[uuid_field] != ZERO_UUID:
             assert len(cargo[uuid_field]) == 36, f'Invalid UUID length for {uuid_field}: {cargo[uuid_field]}'
     assert len(cargo.get('name', '')) <= 64
@@ -75,7 +75,8 @@ def serialize_cargo(cargo: dict[str, Any]) -> bytes:
         pack_string(process_uuid(cargo.get('distributor')), 36),
         pack_string(process_uuid(cargo.get('vehicle_id')), 36),
         pack_string(process_uuid(cargo.get('warehouse_id')), 36),
-        pack_string(process_uuid(cargo.get('vendor_id')), 36)
+        pack_string(process_uuid(cargo.get('vendor_id')), 36),
+        pack_string(process_uuid(cargo.get('recipient')), 36)
         # int(cargo.get('part', 0) or 0),  # part for now is either 0 or 1 of them—0 stored as null at present; in theory could be multiple in future
     )
 
@@ -115,6 +116,10 @@ def serialize_vendor(vendor: dict[str, Any]) -> bytes:
     assert len(vendor.get('name', '')) <= 64
     assert len(vendor.get('base_desc', '') or '') <= 512
 
+    # Support both 'cargo_inventory' (live backend) and '_cargo_inventory' (test fixtures / older schema)
+    c_inv = vendor.get('cargo_inventory', vendor.get('_cargo_inventory', []))
+    v_inv = vendor.get('vehicle_inventory', vendor.get('_vehicle_inventory', []))
+
     header = struct.pack(
         VENDOR_HEADER_FORMAT,
         pack_string(vendor['vendor_id'], 36),
@@ -128,12 +133,12 @@ def serialize_vendor(vendor: dict[str, Any]) -> bytes:
         int(vendor.get('food') or 0),
         int(vendor.get('food_price', -1) or 0),
         int(vendor.get('repair_price', -1) or 0),
-        len(vendor['cargo_inventory']),
-        len(vendor['vehicle_inventory'])
+        len(c_inv),
+        len(v_inv)
     )
 
-    cargo_data = b''.join(serialize_cargo(c) for c in vendor['cargo_inventory'])
-    vehicle_data = b''.join(serialize_vehicle(v) for v in vendor['vehicle_inventory'])
+    cargo_data = b''.join(serialize_cargo(c) for c in c_inv)
+    vehicle_data = b''.join(serialize_vehicle(v) for v in v_inv)
 
     return header + cargo_data + vehicle_data
 
@@ -254,6 +259,9 @@ def deserialize_cargo(buffer: BytesIO) -> dict[str, Any]:
 
     vendor_id = unpack_string(data[15])
     cargo['vendor_id'] = None if vendor_id == ZERO_UUID else vendor_id
+
+    recipient = unpack_string(data[16])
+    cargo['recipient'] = None if recipient == ZERO_UUID else recipient
 
     return cargo
 

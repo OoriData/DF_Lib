@@ -88,13 +88,14 @@ def test_map_roundtrip(test_map_json_1):
                     compare_none_is_0(vendor['food'], deserial_vendor['food'])
 
                     # Compare inventory lengths
-                    assert len(vendor['_cargo_inventory']) == len(deserial_vendor['_cargo_inventory'])
-                    assert len(vendor['_vehicle_inventory']) == len(deserial_vendor['_vehicle_inventory'])
+                    # Input fixture uses '_cargo_inventory'; deserialized output uses 'cargo_inventory'
+                    assert len(vendor['_cargo_inventory']) == len(deserial_vendor['cargo_inventory'])
+                    assert len(vendor['_vehicle_inventory']) == len(deserial_vendor['vehicle_inventory'])
 
                     # Compare first cargo item if present
                     if vendor['_cargo_inventory']:
                         cargo = vendor['_cargo_inventory'][0]
-                        deserial_cargo = deserial_vendor['_cargo_inventory'][0]
+                        deserial_cargo = deserial_vendor['cargo_inventory'][0]
 
                         assert cargo['cargo_id'] == deserial_cargo['cargo_id']
                         assert cargo['name'] == deserial_cargo['name']
@@ -104,7 +105,7 @@ def test_map_roundtrip(test_map_json_1):
                     # Compare first vehicle if present
                     if vendor['_vehicle_inventory']:
                         vehicle = vendor['_vehicle_inventory'][0]
-                        deserial_vehicle = deserial_vendor['_vehicle_inventory'][0]
+                        deserial_vehicle = deserial_vendor['vehicle_inventory'][0]
 
                         assert vehicle['vehicle_id'] == deserial_vehicle['vehicle_id']
                         assert vehicle['name'] == deserial_vehicle['name']

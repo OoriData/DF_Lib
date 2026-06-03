@@ -24,7 +24,7 @@ SETTLEMENT_HEADER_FORMAT = "!36s64s1024sBBBB"  # uuid(36), name(100), type(1), i
 VENDOR_HEADER_FORMAT = "!36s64s512siihihihhHH"
 # id, name, quantity(I), volume(I), weight(I), capacity(f), fuel(f), water(f), food(f), base_price(i),
 # delivery_reward(i), distributor(UUID), vehicle & warehouse & vendor ID
-CARGO_HEADER_FORMAT = "!36s64s512sIIIffffii36s36s36s36s"  # 3xfloat, 3xbyte, 2xshort
+CARGO_HEADER_FORMAT = "!36s64s512sIIIffffii36s36s36s36s36s"  # 3xfloat, 3xbyte, 2xshort, recipient
 # VEHICLE_HEADER_FORMAT = "!36s100sffHHHHHHHIIH"  # uuid(36), name(100), wear(4), fuel_eff(4), followed by shorts, 1 int, 1 short
 # wear(f), base fuel eff & top speed & offroad capab (HHH), base cargo & weight capac (II), towing capacity(i), ap(H), base max ap(H), value(I), vendor_id, warehouse_id
 VEHICLE_HEADER_FORMAT = "!36s64s512sfHHHIIiHHI36s36s"
